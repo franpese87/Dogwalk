@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Quick Start - Leaflet</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css' rel='stylesheet' />
+	<style>
+			.markericon {
+				display: block;
+				padding: 0;
+				border-radius: 50%;
+				box-shadow: 0 0 0 0 rgba(187, 134, 252, 1);
+				animation: pulse 1s infinite;
+			}
+
+			@keyframes pulse {
+				0% { box-shadow: 0 0 0 0 rgba(187, 134, 252, 0.7); }
+				70% { box-shadow: 0 0 0 20px rgba(187, 134, 252, 0); }
+				100% { box-shadow: 0 0 0 0 rgba(187, 134, 252, 0); }
+			}
+
+			.mapboxgl-ctrl-logo {
+				display: none !important;
+			}
+
+		</style>
+</head>
+<body style="width: 100vw; height: 100vh; margin: 0;">
+<div id='map' style="width: 100%; height: 100%;"></div>
+<script>
+			mapboxgl.accessToken = 'pk.eyJ1IjoiZnJhbmNpc2NvcGVyZWFzZXJyYW5vIiwiYSI6ImNraXc4MnByOTFmdGYyd21tODhpZGx5bzkifQ.SCFbLLsAZejukaEjBMoQPQ';
+
+			var position = [0, 0];
+
+			var markericon = document.createElement('div');
+				markericon.className = 'markericon';
+				markericon.style.width = '3rem';
+				markericon.style.height = '3rem';
+				markericon.style.backgroundImage = 'url(https://i.imgur.com/mSKnyrA.png)';
+				markericon.style.backgroundSize = 'cover';
+				markericon.style.backgroundPosition = 'center';
+
+			var marker = null;
+
+			var geojson = null;
+
+			var lineAnimation;
+
+			var map = new mapboxgl.Map({
+				container: 'map',
+				zoom: 1,
+				center: position,
+				pitch: 0,
+				bearing: 0,
+				attributionControl: false,
+				style: 'mapbox://styles/mapbox/streets-v11',
+				//dragPan: false
+			}).on('load', function(e) {
+				Android.onMapReady();
+				map.loadImage('https://i.imgur.com/iWTwV4N.png', function(err, image) { map.addImage('paws', image); });
+				map.loadImage('https://i.imgur.com/EfFopnY.png', function(err, image) { map.addImage('pee', image); });
+				map.loadImage('https://i.imgur.com/AoAQaDk.png', function(err, image) { map.addImage('poop', image); });
+			}).on('sourcedata', function(e) {
+				if (e.isSourceLoaded) {
+					Android.onMapLoaded();
+				}
+			});
+
+			function addToRoute(){
+				if(geojson == null){
+					geojson = {
+						'type': 'FeatureCollection',
+						'features': [
+							{ 	'type': 'Feature',
+								'geometry': {
+									'type': 'LineString',
+									'coordinates': [position],
+									'type': 'LineString'
+								}
+							}
+						]
+					};
+					map.addSource('line', { 'type': 'geojson', 'lineMetrics': true, 'data': geojson });
+					map.addLayer({
+						'type': 'line',
+						'source': 'line',
+						'id': 'line',
+						'layout': {
+							'line-cap': 'round',
+							'line-join': 'round'
+						},
+						'paint': {
+							'line-pattern':'paws',
+            				'line-width':24
+						}
+					});
+				}
+
+				if(geojson.features[0].geometry.coordinates.length == 20){
+					geojson.features[0].geometry.coordinates.shift();
+				}
+
+				geojson.features[0].geometry.coordinates.push(position);
+				map.getSource('line').setData(geojson);
+
+				marker.setLngLat(position);
+				map.panTo(position);
+			}
+
+			///////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////
+
+			function onNewLog(message){
+				console.log(message);
+			}
+
+			function onNewLocation(lng, lat){
+				position = [lng, lat];
+				if(marker == null){
+					marker = new mapboxgl.Marker({element: markericon, anchor: "bottom", offset: [0, 0]}).setLngLat(position).addTo(map);
+					map.jumpTo({ center: position, zoom: 18, pitch: 50 });
+					//map.setMaxZoom(18);
+					//map.setMinZoom(16);
+				}else{
+					addToRoute();
+				}
+			}
+
+			var pees = 0;
+			function addPee(){
+				pees += 1;
+				map.addSource(('peepoint'+pees), { 'type': 'geojson', 'data': { 'type': 'FeatureCollection', 'features': [{ 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': position } }] } });
+				map.addLayer({ 'id': ('peepoints'+pees), 'type': 'symbol', 'source': ('peepoint'+pees), 'layout': { 'icon-image': 'pee', 'icon-size': 0.05 } });
+			}
+
+			var poops = 0;
+			function addPoop(){
+				poops += 1;
+				map.addSource(('poopoint'+poops), { 'type': 'geojson', 'data': { 'type': 'FeatureCollection', 'features': [{ 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': position } }] } });
+				map.addLayer({ 'id': ('poopoints'+poops), 'type': 'symbol', 'source': ('poopoint'+poops), 'layout': { 'icon-image': 'poop', 'icon-size': 0.05 } });
+			}
+
+		</script>
+</body>
+</html>

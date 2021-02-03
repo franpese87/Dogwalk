@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Dogwalk</string>
+    <string name="mascotas">Mascotas</string>
+    <string name="mapa">Mapa</string>
+    <string name="notificacion_gps_en_marcha">En marcha ...</string>
+</resources>

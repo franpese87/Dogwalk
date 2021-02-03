@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/flujo_de_navegacion"
+    app:startDestination="@+id/fragmento_mascotas">
+
+    <action android:id="@+id/abrir_fragment_mapa" app:destination="@id/fragmento_mapa" app:launchSingleTop="true" />
+
+    <fragment
+        android:id="@+id/fragmento_mascotas"
+        android:name="com.franpese.dogwalk.ui.mascotas.FragmentMascotas"
+        android:label="@string/mascotas"
+        tools:layout="@layout/fragment_mascotas" />
+
+    <fragment
+        android:id="@+id/fragmento_mapa"
+        android:name="com.franpese.dogwalk.ui.mapa.FragmentMapa"
+        android:label="@string/mapa"
+        tools:layout="@layout/fragment_mapa" />
+
+</navigation>
